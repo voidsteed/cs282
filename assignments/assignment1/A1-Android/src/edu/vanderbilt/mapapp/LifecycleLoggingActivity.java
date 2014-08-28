@@ -59,6 +59,9 @@ public abstract class LifecycleLoggingActivity extends Activity {
     @Override
     protected void onStart(){
         // @@ TODO: you fill in here
+    	super.onStart();
+    	Log.d(TAG,
+                "onStart(): activity started");
     }
 	
     /**
@@ -74,6 +77,9 @@ public abstract class LifecycleLoggingActivity extends Activity {
     @Override
     protected void onResume(){
         // @@ TODO: you fill in here
+    	super.onResume();
+    	Log.d(TAG,
+                "onResume(): activity resumed");
     }
 	
     /**
@@ -87,6 +93,9 @@ public abstract class LifecycleLoggingActivity extends Activity {
     @Override
     protected void onPause(){
         // @@ TODO: you fill in here
+    	super.onPause();
+    	Log.d(TAG,
+                "onPause(): activity paused");
     }
 	
     /**
@@ -97,6 +106,9 @@ public abstract class LifecycleLoggingActivity extends Activity {
     @Override
     protected void onStop(){
         // @@ TODO: you fill in here
+    	super.onStop();
+    	Log.d(TAG,
+                "onStop(): activity stopped");
     }
 	
     /**
@@ -106,6 +118,9 @@ public abstract class LifecycleLoggingActivity extends Activity {
     @Override
     protected void onRestart(){
         // @@ TODO: you fill in here
+    	super.onRestart();
+    	Log.d(TAG,
+                "onRestart(): activity restarted");
     }
 	
     /**
@@ -116,5 +131,8 @@ public abstract class LifecycleLoggingActivity extends Activity {
     @Override
     protected void onDestroy(){
         // @@ TODO: you fill in here
+    	super.onDestroy();
+    	Log.d(TAG,
+                "onDestroy(): activity destroyed");
     }
 }

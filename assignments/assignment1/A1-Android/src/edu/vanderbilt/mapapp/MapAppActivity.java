@@ -1,6 +1,5 @@
 package edu.vanderbilt.mapapp;
 
-import java.util.Locale;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.content.Context;
+
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -33,7 +33,7 @@ public class MapAppActivity extends LifecycleLoggingActivity {
     // References to Views we will use.
     private EditText mLatitude;
     private EditText mLongitude;
-
+    
     /**
      * Lifecycle hook method called when the Activity starts. 
      */
@@ -48,6 +48,8 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         // so look them up and cache them.
 
         // @@ TODO: you fill in here.
+        mLatitude = (EditText) findViewById(R.id.latitude_edit);
+        mLongitude = (EditText) findViewById(R.id.longitude_edit);
     }
 
     /**
@@ -63,6 +65,19 @@ public class MapAppActivity extends LifecycleLoggingActivity {
 
         // Update the defaults if necessary.
         // @@ TODO: grad students fill in here.
+        if (latitudeString.equals("") && longitudeString.equals("")){
+        	latitudeString = DEFAULT_LATITUDE;
+        	longitudeString = DEFAULT_LONGITUDE;
+        }
+        // Handle either latitude or longitude is empty
+        if (latitudeString.equals("") || longitudeString.equals("")){
+        	Context context = getApplicationContext();
+        	CharSequence input = "Latitude or Longitude cannot be empty!";
+        	int duration = Toast.LENGTH_SHORT;
+        	Toast toast = Toast.makeText(context, input, duration);
+        	toast.show();
+        	return;
+        }
 
         // Convert the Strings to floats.
         final float latitude = Float.parseFloat(latitudeString);
@@ -79,8 +94,23 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         // choose the right one or let the user choose if more than
         // one Activity can handle it.
         // @@ TODO: you fill in here.
-
+        Intent geoIntent = makeGeoIntent(latitude,longitude);
+        Intent mapsIntent = makeMapsIntent(latitude,longitude);
         // @@ TODO: grad students must support both "Maps" and "Browser" apps.
+        if (geoIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(geoIntent);
+        }
+        else if (mapsIntent.resolveActivity(getPackageManager()) != null){
+        	startActivity(mapsIntent);
+        }
+        else{
+        	Context context = getApplicationContext();
+        	CharSequence noAppInput = "No App can handle this intent";
+        	int duration = Toast.LENGTH_SHORT;
+        	Toast noAppToast = Toast.makeText(context, noAppInput, duration);
+        	noAppToast.show();
+        }
+        
     }
 
     /**
@@ -90,7 +120,9 @@ public class MapAppActivity extends LifecycleLoggingActivity {
     private Intent makeGeoIntent(final float latitude,
                                  final float longitude) {
         // @@ TODO: you fill in here, replacing null;
-        return null;
+    	String uri = "geo:"+ latitude + "," + longitude;
+    	Intent geoIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
+        return geoIntent;
     }
 
     /**
@@ -100,7 +132,9 @@ public class MapAppActivity extends LifecycleLoggingActivity {
     private Intent makeMapsIntent(final float latitude,
                                   final float longitude) {
         // @@ TODO: you fill in here, replacing null;
-        return null;
+    	String url = "http://maps.google.com/maps?q=" + latitude + "," + longitude;
+    	Intent mapsIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(url));
+        return mapsIntent;
     }
 
     /**
@@ -116,7 +150,19 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         // longitude: [-180, 180]
 
         // @@ TODO: you fill in here
-        return false;
+    	Context context = getApplicationContext();
+    	CharSequence invalidInput = "Input invalid!";
+    	int duration = Toast.LENGTH_SHORT;
+    	Toast invalidToast = Toast.makeText(context, invalidInput, duration);
+    	
+    	
+    	if( ((latitude > -LATITUDE_MIN) && (latitude < LATITUDE_MAX) 
+    			&& (longitude > -LONGITUDE_MIN) && (longitude < LONGITUDE_MAX)))
+    		return false;
+    	else{
+    		invalidToast.show();
+    		return true;
+    		}
     }
 
     /**
