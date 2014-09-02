@@ -69,15 +69,9 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         	latitudeString = DEFAULT_LATITUDE;
         	longitudeString = DEFAULT_LONGITUDE;
         }
-        // Handle either latitude or longitude is empty
+        // Handle when either latitude or longitude is empty
         if (latitudeString.equals("") || longitudeString.equals("")){
-            // This is too verbose - refactor it into a showToast() method.
-        	Context context = getApplicationContext();
-                // @@ Don't use embedded strings.
-        	CharSequence input = "Latitude or Longitude cannot be empty!";
-        	int duration = Toast.LENGTH_SHORT;
-        	Toast toast = Toast.makeText(context, input, duration);
-        	toast.show();
+        	showToast(getString(R.string.emptyInputWarning));
         	return;
         }
 
@@ -96,29 +90,37 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         // choose the right one or let the user choose if more than
         // one Activity can handle it.
         // @@ TODO: you fill in here.
-        Intent geoIntent = makeGeoIntent(latitude,longitude);
         // @@ Don't make the mapsIntent until you actually need it.
-
-        Intent mapsIntent = makeMapsIntent(latitude,longitude);
         // @@ TODO: grad students must support both "Maps" and "Browser" apps.
+        // ## Check! Only make geoIntent at this time
+        Intent geoIntent = makeGeoIntent(latitude,longitude);
         if (geoIntent.resolveActivity(getPackageManager()) != null) {
             startActivity(geoIntent);
         }
-        else if (mapsIntent.resolveActivity(getPackageManager()) != null){
-        	startActivity(mapsIntent);
-        }
         else{
-            // @@ Refactor, as per comment above.
-        	Context context = getApplicationContext();
-                // @@ Don't use embedded strings.
-        	CharSequence noAppInput = "No App can handle this intent";
-        	int duration = Toast.LENGTH_SHORT;
-        	Toast noAppToast = Toast.makeText(context, noAppInput, duration);
-        	noAppToast.show();
+        	//Handle open with browser app
+        	Intent mapsIntent = makeMapsIntent(latitude,longitude);
+        	if (mapsIntent.resolveActivity(getPackageManager()) != null){
+        		startActivity(mapsIntent);
+        	}
+        	//Hanlde no app could open exception
+        	else{
+            	showToast(getString(R.string.noAppInput));
+            }
         }
-        
     }
 
+    /**
+     *A method to make and show the toast by passing a string
+     */
+    private void showToast(String string){
+    	Context context = getApplicationContext();
+    	CharSequence input = string;
+    	int duration = Toast.LENGTH_SHORT;
+    	Toast toast = Toast.makeText(context, input, duration);
+    	toast.show();
+    }
+    
     /**
      * Factory method that returns an Intent that designates the "Map"
      * app.
@@ -127,10 +129,9 @@ public class MapAppActivity extends LifecycleLoggingActivity {
                                  final float longitude) {
         // @@ TODO: you fill in here, replacing null;
     	String uri = "geo:"+ latitude + "," + longitude;
-    	Intent geoIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
+    	//Intent geoIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
         // Just say
-        // return new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
-        return geoIntent;
+        return new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
     }
 
     /**
@@ -141,10 +142,9 @@ public class MapAppActivity extends LifecycleLoggingActivity {
                                   final float longitude) {
         // @@ TODO: you fill in here, replacing null;
     	String url = "http://maps.google.com/maps?q=" + latitude + "," + longitude;
-    	Intent mapsIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(url));
+    	//Intent mapsIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(url));
         // Just say
-        // return new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
-        return mapsIntent;
+        return new Intent(Intent.ACTION_VIEW,Uri.parse(url));
     }
 
     /**
@@ -160,19 +160,12 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         // longitude: [-180, 180]
 
         // @@ TODO: you fill in here
-        // Don't create the toast unless you actually need it.
-    	Context context = getApplicationContext();
-        // @@ Same comment as above about toasts.
-    	CharSequence invalidInput = "Input invalid!";
-    	int duration = Toast.LENGTH_SHORT;
-    	Toast invalidToast = Toast.makeText(context, invalidInput, duration);
-    	
-    	
-    	if( ((latitude > -LATITUDE_MIN) && (latitude < LATITUDE_MAX) 
-    			&& (longitude > -LONGITUDE_MIN) && (longitude < LONGITUDE_MAX)))
+    	// ## check!
+    	if( ((latitude >= LATITUDE_MIN) && (latitude <= LATITUDE_MAX) 
+    			&& (longitude >= LONGITUDE_MIN) && (longitude <= LONGITUDE_MAX)))
     		return false;
     	else{
-    		invalidToast.show();
+    		showToast(getString(R.string.invalidInputWarning));
     		return true;
     		}
     }
