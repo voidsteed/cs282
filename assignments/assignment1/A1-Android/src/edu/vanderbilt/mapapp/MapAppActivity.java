@@ -46,7 +46,6 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         
         // We will need to get the values out of the EditText boxes,
         // so look them up and cache them.
-
         // @@ TODO: you fill in here.
         mLatitude = (EditText) findViewById(R.id.latitude_edit);
         mLongitude = (EditText) findViewById(R.id.longitude_edit);
@@ -90,7 +89,6 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         // choose the right one or let the user choose if more than
         // one Activity can handle it.
         // @@ TODO: you fill in here.
-        // @@ Don't make the mapsIntent until you actually need it.
         // @@ TODO: grad students must support both "Maps" and "Browser" apps.
         // ## Check! Only make geoIntent at this time
         Intent geoIntent = makeGeoIntent(latitude,longitude);
@@ -103,7 +101,7 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         	if (mapsIntent.resolveActivity(getPackageManager()) != null){
         		startActivity(mapsIntent);
         	}
-        	//Hanlde no app could open exception
+        	//Handle no app could open exception
         	else{
             	showToast(getString(R.string.noAppInput));
             }
@@ -128,9 +126,8 @@ public class MapAppActivity extends LifecycleLoggingActivity {
     private Intent makeGeoIntent(final float latitude,
                                  final float longitude) {
         // @@ TODO: you fill in here, replacing null;
+    	// create a uri for Intent
     	String uri = "geo:"+ latitude + "," + longitude;
-    	//Intent geoIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
-        // Just say
         return new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
     }
 
@@ -141,9 +138,8 @@ public class MapAppActivity extends LifecycleLoggingActivity {
     private Intent makeMapsIntent(final float latitude,
                                   final float longitude) {
         // @@ TODO: you fill in here, replacing null;
+    	// create a url for Intent
     	String url = "http://maps.google.com/maps?q=" + latitude + "," + longitude;
-    	//Intent mapsIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(url));
-        // Just say
         return new Intent(Intent.ACTION_VIEW,Uri.parse(url));
     }
 
@@ -158,8 +154,7 @@ public class MapAppActivity extends LifecycleLoggingActivity {
         // reals.  Check for valid ranges for latitude and longitude:
         // latitude: [-90, 90] 
         // longitude: [-180, 180]
-
-        // @@ TODO: you fill in here
+    	// @@ TODO: you fill in here
     	// ## check!
     	if( ((latitude >= LATITUDE_MIN) && (latitude <= LATITUDE_MAX) 
     			&& (longitude >= LONGITUDE_MIN) && (longitude <= LONGITUDE_MAX)))
