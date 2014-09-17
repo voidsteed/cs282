@@ -17,16 +17,19 @@ public class SimpleSemaphore implements ISemaphore {
      * Define a count of the number of available permits.
      */
     // @@ TODO - you fill in here.
+	private volatile int mAvailablePermitsCount = 0;
 	
     /**
      * Keep track of whether we need a fair or non-fair Semaphore.
      */
     // @@ TODO - you fill in here.
+	private volatile boolean mFairSemaphore;
 	
     /**
      * Keep track of the waiters in FIFO order if "mFair" is true.
      */
     // @@ TODO - you fill in here.
+	private Vector<Object> waitersTrack = new Vector<Object>();
 
     /** 
      * Initialize the SimpleSemaphore.
@@ -38,6 +41,8 @@ public class SimpleSemaphore implements ISemaphore {
     public SimpleSemaphore(int initialPermits,
                            boolean fair) {
         // @@ TODO - you fill in here.
+    	mAvailablePermitsCount = initialPermits;
+    	mFairSemaphore = fair;
     }
 	
     /**
@@ -47,6 +52,28 @@ public class SimpleSemaphore implements ISemaphore {
     @Override
     public void acquire() throws InterruptedException {
         // @@ TODO - you fill in here.
+    	if(mFairSemaphore){
+    		Object snl = new Object();
+    		int waitersTrackSize;
+    		synchronized(snl){
+    			synchronized(this){
+    				
+    				waitersTrack.add(snl);
+    				waitersTrackSize = waitersTrack.size();
+    			}
+    			if (waitersTrackSize > mAvailablePermitsCount){
+					snl.wait();
+					}
+    		}
+    	}else{// the non-fair way
+    		synchronized(this){
+    		while(this.mAvailablePermitsCount <= 0){
+    			wait();
+    			}
+    			mAvailablePermitsCount--;
+    		}
+    		
+    	}
     }
 
     /**
@@ -55,7 +82,14 @@ public class SimpleSemaphore implements ISemaphore {
      */
     @Override
     public void acquireUninterruptibly() {
-        // @@ TODO - you fill in here.
+        	while (true) {
+        		try{
+        			acquire();
+        			break;
+        		}catch(InterruptedException e){
+        		
+        	}                	
+        }
     }
 	
     /**
@@ -64,6 +98,19 @@ public class SimpleSemaphore implements ISemaphore {
     @Override
     public void release() {
         // @@ TODO - you fill in here.
+    	if(mFairSemaphore){
+    		waitersTrack.remove(0);
+    		if(!waitersTrack.isEmpty()){
+    			synchronized(waitersTrack.firstElement()){
+    				waitersTrack.firstElement().notify();
+    			}
+    		}
+    	}else{
+    		synchronized(this){	
+    			mAvailablePermitsCount++;
+    			notify();
+    		}
+    	}
     }
 
     /**
@@ -72,5 +119,10 @@ public class SimpleSemaphore implements ISemaphore {
     @Override
     public int availablePermits() {
         // @@ TODO - you fill in here.
+    	if(mFairSemaphore){
+    		return mAvailablePermitsCount-waitersTrack.size();
+    	}else{
+    		return mAvailablePermitsCount;
+    	}
     }
 }
