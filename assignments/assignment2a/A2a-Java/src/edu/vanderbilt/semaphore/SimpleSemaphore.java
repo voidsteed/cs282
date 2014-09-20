@@ -29,6 +29,9 @@ public class SimpleSemaphore implements ISemaphore {
      * Keep track of the waiters in FIFO order if "mFair" is true.
      */
     // @@ TODO - you fill in here.
+
+        // @@ Don't allocate the vector unless mFair is true.
+
 	private Vector<Object> waitersTrack = new Vector<Object>();
 
     /** 
@@ -57,11 +60,18 @@ public class SimpleSemaphore implements ISemaphore {
     		int waitersTrackSize;
     		synchronized(snl){
     			synchronized(this){
+        // @@ You're not handling the mAvailPermitCount properly here
+        // - you're *always* adding it to the Vector, even if there's
+        // no need to wait.
     				
     				waitersTrack.add(snl);
     				waitersTrackSize = waitersTrack.size();
     			}
+
+        // @@ This check needs to be done in a synchronized block to avoid race conditions.
+                        
     			if (waitersTrackSize > mAvailablePermitsCount){
+                            // @@ You don't check to see if wait() was interrupted and thus don't handle it correctly.
 					snl.wait();
 					}
     		}
@@ -99,10 +109,14 @@ public class SimpleSemaphore implements ISemaphore {
     public void release() {
         // @@ TODO - you fill in here.
     	if(mFairSemaphore){
+        // @@ This needs to be done in a synchronized block to avoid
+        // race conditions.  However, you're also removing the very
+        // element that you need to be notifying..
     		waitersTrack.remove(0);
     		if(!waitersTrack.isEmpty()){
     			synchronized(waitersTrack.firstElement()){
     				waitersTrack.firstElement().notify();
+        // @@ You're missing some important things(s) here needed to avoid race conditions.
     			}
     		}
     	}else{
@@ -120,6 +134,8 @@ public class SimpleSemaphore implements ISemaphore {
     public int availablePermits() {
         // @@ TODO - you fill in here.
     	if(mFairSemaphore){
+        // @@ This needs to be done in a synchronized block to avoid race conditions.
+
     		return mAvailablePermitsCount-waitersTrack.size();
     	}else{
     		return mAvailablePermitsCount;
