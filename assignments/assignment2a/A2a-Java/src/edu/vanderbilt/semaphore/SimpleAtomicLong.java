@@ -90,8 +90,8 @@ class SimpleAtomicLong {
     public long getAndIncrement() {
         // TODO - you fill in here
     	try{
-    		long preValue = mValue;
     		mRWLock.writeLock().lock();
+    		long preValue = mValue;
     		mValue++;
     		return preValue;
     	}
@@ -109,7 +109,7 @@ class SimpleAtomicLong {
         // TODO - you fill in here
     	try{
             // @@ Yikes, this read isn't protected by a lock!
-    		// ## put preValue inside writelock
+    		// ## put preValue inside writelock because the preValue needs to be protected
     		mRWLock.writeLock().lock();
     		long preValue = mValue;
     		mValue--;

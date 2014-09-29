@@ -44,6 +44,7 @@ public class SimpleSemaphore implements ISemaphore {
     public SimpleSemaphore(int initialPermits,
                            boolean fair) {
         // @@ TODO - you fill in here.
+    	// initial member variables
     	mAvailablePermitsCount = initialPermits;
     	mFairSemaphore = fair;
     }
@@ -63,6 +64,11 @@ public class SimpleSemaphore implements ISemaphore {
         // @@ You're not handling the mAvailPermitCount properly here
         // - you're *always* adding it to the Vector, even if there's
         // no need to wait.
+    				// ## rewrite the acquire() method using a lock for each thread,
+    				// then lock the critical section
+    				// if satisfied the condition add to waiters' queue
+    				// otherwise decrease the count and jump out
+    				// Also, making the lock wait outside the critical section
     				if(mAvailablePermitsCount <= 0){
     					waitersQ.add(waitLock);
     				}
@@ -75,22 +81,19 @@ public class SimpleSemaphore implements ISemaphore {
     					waitLock.wait();
     				} catch(InterruptedException e) { 
     					synchronized(this){
-    						waitersQ.remove(this);
+    						waitersQ.remove(waitLock);
     						throw new InterruptedException("thread is interrupted.");
     					}
     				}
     			}
-
-        // @@ This check needs to be done in a synchronized block to avoid race conditions.
-  
-    	}else{// the non-fair way
+    	// the non-fair way
+    	}else{
     		synchronized(this){
-    		while(this.mAvailablePermitsCount <= 0){
-    			wait();
-    			}
-    			--mAvailablePermitsCount;
-    		}
-    		
+    			while(this.mAvailablePermitsCount <= 0){
+    				wait();
+    				}
+    				--mAvailablePermitsCount;
+    			}	
     	}
     }
 
@@ -100,15 +103,16 @@ public class SimpleSemaphore implements ISemaphore {
      */
     @Override
     public void acquireUninterruptibly() {
-        	while (true) {
-        		try{
-        			acquire();
-        			break;
-        		}catch(InterruptedException e){
+        // set in a infinite loop to make it uninterruptible	
+    	while (true) {
+        	try{
+        		acquire();
+        		break;
+        	}catch(InterruptedException e){
         		
-        	}                	
-        }
-    }
+        }                	
+       }
+   }
 	
     /**
      * Return one permit to the semaphore.
@@ -119,7 +123,13 @@ public class SimpleSemaphore implements ISemaphore {
     	if(mFairSemaphore){
         // @@ This needs to be done in a synchronized block to avoid
         // race conditions.  However, you're also removing the very
-        // element that you need to be notifying..
+        // element that you need to be notifying.
+    	// ## checked
+    		//enter critical section, increase count first
+    		// then check if waiters' queue is null
+    		// remove the lock and set it to a Object variable
+    		// decrease the count
+    		// lock the Lock and notify it()
     		synchronized(this){
     			mAvailablePermitsCount++;
     			if(!waitersQ.isEmpty()){
@@ -132,6 +142,8 @@ public class SimpleSemaphore implements ISemaphore {
     		}
         // @@ You're missing some important things(s) here needed to avoid race conditions.
     	// ## checked!
+    		
+    	//non-fair way	
     	}else{
     		synchronized(this){	
     			mAvailablePermitsCount++;
@@ -153,6 +165,7 @@ public class SimpleSemaphore implements ISemaphore {
     			return mAvailablePermitsCount - waitersQ.size();
     		}
     	}else{
+    		// mAvailablePermitsCount is volatile
     		return mAvailablePermitsCount;
     	}
     }
