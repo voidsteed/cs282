@@ -1,6 +1,6 @@
 package edu.vanderbilt.semaphore;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @class SimpleSemaphore
@@ -32,7 +32,7 @@ public class SimpleSemaphore implements ISemaphore {
 
         // @@ Don't allocate the vector unless mFair is true.
 
-	private Vector<Object> waitersTrack = new Vector<Object>();
+	private ArrayList<Object> waitersQ = new ArrayList<Object>();
 
     /** 
      * Initialize the SimpleSemaphore.
@@ -56,31 +56,39 @@ public class SimpleSemaphore implements ISemaphore {
     public void acquire() throws InterruptedException {
         // @@ TODO - you fill in here.
     	if(mFairSemaphore){
-    		Object snl = new Object();
-    		int waitersTrackSize;
-    		synchronized(snl){
+    		Object waitLock = new Object();
+    		//boolean mustWait;
+    		synchronized(waitLock){
     			synchronized(this){
         // @@ You're not handling the mAvailPermitCount properly here
         // - you're *always* adding it to the Vector, even if there's
         // no need to wait.
-    				
-    				waitersTrack.add(snl);
-    				waitersTrackSize = waitersTrack.size();
+    				if(mAvailablePermitsCount <= 0){
+    					waitersQ.add(waitLock);
+    				}
+    				else{
+    					--mAvailablePermitsCount;
+    					return;
+    				}
+    			}
+    				try{
+    					waitLock.wait();
+    				} catch(InterruptedException e) { 
+    					synchronized(this){
+    						waitersQ.remove(this);
+    						throw new InterruptedException("thread is interrupted.");
+    					}
+    				}
     			}
 
         // @@ This check needs to be done in a synchronized block to avoid race conditions.
-                        
-    			if (waitersTrackSize > mAvailablePermitsCount){
-                            // @@ You don't check to see if wait() was interrupted and thus don't handle it correctly.
-					snl.wait();
-					}
-    		}
+  
     	}else{// the non-fair way
     		synchronized(this){
     		while(this.mAvailablePermitsCount <= 0){
     			wait();
     			}
-    			mAvailablePermitsCount--;
+    			--mAvailablePermitsCount;
     		}
     		
     	}
@@ -112,13 +120,18 @@ public class SimpleSemaphore implements ISemaphore {
         // @@ This needs to be done in a synchronized block to avoid
         // race conditions.  However, you're also removing the very
         // element that you need to be notifying..
-    		waitersTrack.remove(0);
-    		if(!waitersTrack.isEmpty()){
-    			synchronized(waitersTrack.firstElement()){
-    				waitersTrack.firstElement().notify();
-        // @@ You're missing some important things(s) here needed to avoid race conditions.
-    			}
+    		synchronized(this){
+    			mAvailablePermitsCount++;
+    			if(!waitersQ.isEmpty()){
+    				Object next = waitersQ.remove(0);
+    				--mAvailablePermitsCount;
+    				synchronized(next){
+        				next.notify();
+        			}
+    			}	
     		}
+        // @@ You're missing some important things(s) here needed to avoid race conditions.
+    	// ## checked!
     	}else{
     		synchronized(this){	
     			mAvailablePermitsCount++;
@@ -135,8 +148,10 @@ public class SimpleSemaphore implements ISemaphore {
         // @@ TODO - you fill in here.
     	if(mFairSemaphore){
         // @@ This needs to be done in a synchronized block to avoid race conditions.
-
-    		return mAvailablePermitsCount-waitersTrack.size();
+    	// ## added to synchronized (this)	
+    		synchronized(this){
+    			return mAvailablePermitsCount - waitersQ.size();
+    		}
     	}else{
     		return mAvailablePermitsCount;
     	}
