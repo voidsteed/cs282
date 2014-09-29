@@ -31,7 +31,7 @@ public class SimpleSemaphore implements ISemaphore {
     // @@ TODO - you fill in here.
 
         // @@ Don't allocate the vector unless mFair is true.
-
+	// ## checked. Also changed to ArrayList because using Vector is inefficient in this assignment
 	private ArrayList<Object> waitersQ;
 
     /** 
@@ -47,6 +47,7 @@ public class SimpleSemaphore implements ISemaphore {
     	// initial member variables
     	mAvailablePermitsCount = initialPermits;
     	mFairSemaphore = fair;
+    	// if it is fair, then allocate the arrayList
     	if(mFairSemaphore){
     		waitersQ = new ArrayList<Object>();
     	}
