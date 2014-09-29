@@ -32,7 +32,7 @@ public class SimpleSemaphore implements ISemaphore {
 
         // @@ Don't allocate the vector unless mFair is true.
 
-	private ArrayList<Object> waitersQ = new ArrayList<Object>();
+	private ArrayList<Object> waitersQ;
 
     /** 
      * Initialize the SimpleSemaphore.
@@ -47,6 +47,9 @@ public class SimpleSemaphore implements ISemaphore {
     	// initial member variables
     	mAvailablePermitsCount = initialPermits;
     	mFairSemaphore = fair;
+    	if(mFairSemaphore){
+    		waitersQ = new ArrayList<Object>();
+    	}
     }
 	
     /**
