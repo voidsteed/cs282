@@ -4,17 +4,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 
 /**
- * @class BuggyQueueTest
+ * @class SimpleBlockingQueueTest
  * 
- * @brief Test program for the SimpleQueue that induces race
+ * @brief Test program for the SimpleBlockingQueue that induces race
  *        conditions due to lack of synchronization.
  */
-public class BuggyQueueTest
+public class SimpleBlockingQueueTest
 { 
     /**
      * Maximum number of iterations.
      */
-    private final static int mMaxIterations = 1000000;
+    private final static int mMaxIterations = 100000;
 
     /**
      * Maximum size of the queue.
@@ -95,11 +95,11 @@ public class BuggyQueueTest
                 for(int i = 0; i < mMaxIterations; i++) {
                     // Calls the take() method.
                     s = mQueue.take();
-                    
+
                     mCount.decrementAndGet();
-                    
+
                     if((i % (mMaxIterations / 10)) == 0)
-                        System.out.println(s == null ? "<null>" : s);
+                        System.out.println(s);
                 }
             } catch (InterruptedException e) {
                 System.out.println("InterruptedException caught");
@@ -114,11 +114,11 @@ public class BuggyQueueTest
     }
 
     /**
-     * Main entry point that tests the SimpleQueue class.
+     * Main entry point that tests the SimpleBlockingQueue class.
      */
     public static void main(String argv[]) {
-        final SimpleQueue<String> simpleQueue =
-            new SimpleQueue<String>(); // (mQueueSize);
+        final SimpleBlockingQueue<String> simpleQueue =
+            new SimpleBlockingQueue<String>(mQueueSize);
 
         try {
             // Create a ProducerThread.

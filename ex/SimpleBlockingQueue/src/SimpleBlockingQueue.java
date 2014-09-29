@@ -7,17 +7,17 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /*
- * @class SimpleQueue
+ * @class SimpleBlockingQueue
  *
  * @brief Defines an implementation of the BlockingQueue interface
- *        that (intentially) doesn't work properly when accessed via
- *        multiple threads since it's not synchronized properly.
+ *        that works properly when accessed via multiple threads since
+ *        it's synchronized properly.
  */
-class SimpleQueue<E> implements BlockingQueue<E> {
+class SimpleBlockingQueue<E> implements BlockingQueue<E> {
     /**
      * The queue consists of a List of E's.
      */
-    private List<E> mList = new ArrayList<E>();
+    final private List<E> mList;
 
     /**
      * The maximum capacity of the queue or Integer.MAX_VALUE if none.
@@ -28,14 +28,14 @@ class SimpleQueue<E> implements BlockingQueue<E> {
      * Create a SimpleBlocking queue with a capacity of
      * Integer.MAX_VALUE.
      */
-    public SimpleQueue() {
+    public SimpleBlockingQueue() {
         this(Integer.MAX_VALUE);
     }
 
     /**
      * Create a SimpleBlocking queue with the given capacity.
      */
-    public SimpleQueue(int capacity) {
+    public SimpleBlockingQueue(int capacity) {
         if (capacity <= 0) 
             throw new IllegalArgumentException();
         mCapacity = capacity;
@@ -43,48 +43,80 @@ class SimpleQueue<E> implements BlockingQueue<E> {
     }
 
     /**
-     * True if the queue is empty.
+     * Add a new E to the end of the queue, blocking if necessary for
+     * space to become available.
      */
-    public boolean isEmpty() {
-        return mList.size() == 0;
-    }
+    public void put(E e) throws InterruptedException {
+        synchronized(this) {
+            if (e == null)
+                throw new NullPointerException();
 
-    /**
-     * Returns true if the queue is full, else false.
-     */
-    private boolean isFull() {
-        return mList.size() == mCapacity;
-    }
+            // Wait until the queue is not full.
+            while (isFull()) {
+                // System.out.println("BLOCKING ON PUT()");
+                wait();
+            }
 
-    /**
-     * Add a new E to the end of the queue.
-     */
-    public void put(E msg) throws InterruptedException {
-        if (isFull() == false)
-            mList.add(msg);
+            // Add e to the ArrayList.
+            mList.add(e);
+            
+            // Notify that the queue may have changed state, e.g., "no
+            // longer empty".
+            notifyAll();
+        }
     } 
 
     /**
-     * Remove the E at the front of the queue.
+     * Remove the E at the front of the queue, blocking until there's
+     * something in the queue.
      */
     public E take() throws InterruptedException {
-        if (isEmpty() == false)
-            return mList.remove(0);
-        else
-        	return null;
+        synchronized(this) {
+            // Wait until the queue is not empty.
+            while (mList.isEmpty()) {
+                // System.out.println("BLOCKING ON TAKE()");
+                wait();
+            }
+
+            final E e = mList.remove(0);
+        
+            // Notify that the queue may have changed state, e.g., "no
+            // longer full".
+            notifyAll();
+            return e;
+        }
     } 
 
     /**
      * Returns the number of elements in this queue.
      */
     public int size() {
-        return mList.size();
+        synchronized(this) {
+            return mList.size();
+        }
+    }
+
+    /**
+     * Returns true if the queue is empty, else false.
+     */
+    public boolean isEmpty() {
+        synchronized(this) {
+            return mList.size() == 0;
+        }
+    }
+
+    /**
+     * Returns true if the queue is full, else false.  Since this
+     * isn't a public method it assumes the monitor lock is held.
+     */
+    private boolean isFull() {
+        return mList.size() == mCapacity;
     }
 
     /**
      * All these methods are inherited from the BlockingQueue
-     * interface. They are defined as no-ops to ensure the "Buggyness"
-     * of this class ;-)
+     * interface. They are defined as no-ops and their implementations
+     * are left as an exercise to the reader.
      */
     public int drainTo(Collection<? super E> c) {
         return 0;
@@ -155,9 +187,3 @@ class SimpleQueue<E> implements BlockingQueue<E> {
         return null;
     }
 }
-
-
-
-
-
-
