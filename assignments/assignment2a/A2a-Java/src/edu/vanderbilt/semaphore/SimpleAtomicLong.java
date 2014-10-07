@@ -55,13 +55,11 @@ class SimpleAtomicLong {
      */
     public long get() {
         // TODO - you fill in here
-    	try{
-    		mRWLock.readLock().lock();
+    	rLock.lock();
+    	try{	
     		return mValue;
-    		}
-    	finally
-    	{
-    		mRWLock.readLock().unlock();
+    		}finally{
+    			rLock.unlock();
     	}
     }
 
@@ -72,13 +70,12 @@ class SimpleAtomicLong {
      */
     public long decrementAndGet() {
         // TODO - you fill in here
+    	wLock.lock();
     	try{
-    		mRWLock.writeLock().lock();
-    		mValue--;
-    		return mValue;
+    		return --mValue;
     	}
     	finally{
-    		mRWLock.writeLock().unlock();
+    		wLock.unlock();
     	}
     }
 
@@ -89,14 +86,12 @@ class SimpleAtomicLong {
      */
     public long getAndIncrement() {
         // TODO - you fill in here
+    	wLock.lock();
     	try{
-    		mRWLock.writeLock().lock();
-    		long preValue = mValue;
-    		mValue++;
-    		return preValue;
+    		return mValue++;
     	}
     	finally{
-    		mRWLock.writeLock().unlock();
+    		wLock.unlock();
     	}
     }
 
@@ -110,13 +105,13 @@ class SimpleAtomicLong {
     	try{
             // @@ Yikes, this read isn't protected by a lock!
     		// ## put preValue inside writelock because the preValue needs to be protected
-    		mRWLock.writeLock().lock();
+    		wLock.lock();
     		long preValue = mValue;
     		mValue--;
     		return preValue;
     	}
     	finally{
-    		mRWLock.writeLock().unlock();
+    		wLock.unlock();
     	}
     }
 
@@ -128,12 +123,12 @@ class SimpleAtomicLong {
     public long incrementAndGet() {
         // TODO - you fill in here
     	try{
-    		mRWLock.writeLock().lock();
+    		wLock.lock();
     		mValue++;
     		return mValue;
     	}
     	finally{
-    		mRWLock.writeLock().unlock();
+    		wLock.unlock();
     	}
     }
 }

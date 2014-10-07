@@ -85,9 +85,11 @@ public class SimpleSemaphore implements ISemaphore {
     					waitLock.wait();
     				} catch(InterruptedException e) { 
     					synchronized(this){
-    						waitersQ.remove(waitLock);
-    						throw new InterruptedException("thread is interrupted.");
+    						boolean removed = waitersQ.remove(waitLock);
+    						if(!removed)
+    							release();
     					}
+    					throw new InterruptedException("thread is interrupted.");
     				}
     			}
     	// the non-fair way
