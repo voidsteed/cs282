@@ -35,8 +35,9 @@ public class PalantirManager {
      */
     protected HashMap<Palantir, Boolean> mPalantiri = null;
     
-    //Create a local variable called free. 
-    //It's used as a flag to indicate if the palantir is free.
+    /**
+     * Create a local variable called free. 
+     * It's used as a flag to indicate if the palantir is free.*/
     private final boolean notInUse = false;
     private final boolean inUse = true;
 
@@ -48,12 +49,15 @@ public class PalantirManager {
      */
     public PalantirManager(final List<Palantir> palantiri) {
     	// @@ TODO - You fill in here.
-    	//set mMaxPalantiri to length of palantiri list
+    	
+    	//Set mMaxPalantiri to length of palantiri list
     	mMaxPalantiri = palantiri.size();
-    	// create mAvailable using fair semantic
+    	
+    	// create mAvailable using fair semantic semaphore
     	mAvailable = new SimpleSemaphore(mMaxPalantiri,true);
-    	//Entry each palantir from list to Hashmap with false.
-    	//false means palantir is not in use
+    	
+    	//Create a hashmap with Panlantir and boolean
+    	//Loop through Hashmap and map panlantiri with notInUse(false) in default.
     	mPalantiri = new HashMap<Palantir, Boolean>();
     	for(Palantir p:palantiri){
     		mPalantiri.put(p, notInUse);
@@ -68,8 +72,12 @@ public class PalantirManager {
      */
     public Palantir acquirePalantir() throws InterruptedException {
     	// @@ TODO - You fill in here (replacing return null);
+    	
+    	//Create a local variable for return
     	Palantir acquiredPalantir = null;
+    	//Acquire lock using semaphore
     	mAvailable.acquire();
+    	//use a local method to get next available palantir
     	acquiredPalantir = getNextAvailablePalantir();
     	return acquiredPalantir;
     }
@@ -80,12 +88,13 @@ public class PalantirManager {
      */
     public void releasePalantir(final Palantir palantir) {
         // @@ TODO - You fill in here.
-        	// grab a semaphore lock
-    		
-    		synchronized(mPalantiri){
-    			mPalantiri.put(palantir, notInUse);
-    		}
-    		mAvailable.release();
+    	//Lock the palantiri list and 
+    	//change the palantir's value to notInUse	
+    	synchronized(mPalantiri){
+    		mPalantiri.put(palantir, notInUse);
+    	}
+    	//release a semaphore to mAvailable
+    	mAvailable.release();
     }
 
     /**
@@ -97,13 +106,21 @@ public class PalantirManager {
      */
     protected Palantir getNextAvailablePalantir() {
     	// @@ TODO - You fill in here (replacing return null);
+    	// create a local variable for return
     	Palantir nextAvailablePalantir = null;
+    	//lock the palantiri map
     	synchronized(mPalantiri){
+    		//check if there is a free palantir
     		if(mPalantiri.containsValue(notInUse)){
+    			//then loop through the palantiri map
     			for(Entry<Palantir,Boolean> p : mPalantiri.entrySet()){
+    				//Check one entry see if the palantir is in use
 					if(p.getValue()==notInUse){
+						//get this available palantir
 						nextAvailablePalantir = p.getKey();
+						//change this palantir status from noInUse to inUse
 						p.setValue(inUse);
+						//Find the palantir,so don't need to loop again, break it
 						break;
 					}
     			}
@@ -117,14 +134,20 @@ public class PalantirManager {
      * method can be called from multiple threads, so make sure that
      * any shared state is protected from race conditions.
      */
-    //?? return boolean or palantir
+    
     protected boolean markAsUnused(final Palantir palantir) {
     	// @@ TODO - You fill in here (replacing return false);
+    	//set a boolean flag for return
     	boolean markedUnused = false;
-    	
+    	//Because multi-thread, so lock palantir map
     	synchronized(mPalantiri){
-    		mPalantiri.put(palantir, notInUse);
-    		markedUnused = true;
+    		// if the palantir is inUse(true)
+    		if(mPalantiri.get(palantir)){
+    			//change from inUse to notInUse
+    			mPalantiri.put(palantir, notInUse);
+    			//set the flag to be true
+    			markedUnused = true;}
+    		//else is just return false
     	}
     	
     	return markedUnused;

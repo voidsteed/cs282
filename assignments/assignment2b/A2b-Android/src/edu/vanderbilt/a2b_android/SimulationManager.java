@@ -137,6 +137,7 @@ public class SimulationManager {
 	 */
 	private static PalantirManager initializePalantiri(int palantirCount) {
 		// @@ TODO - You fill in here (replacing return null).
+		//create the mPalantirManager 
 		mPalantirManager = new PalantirManager(mPalantirManager.generatePalantiri(palantirCount));
 		return mPalantirManager;
 	}
@@ -153,8 +154,9 @@ public class SimulationManager {
 	 */
 	private static List<Thread> createBeingThreads(int beingCount) {
 		// @@ TODO - You fill in here (replacing return null);
-		// ?? list of threads to runnable?
+		//initiate the mBeings to be an ArrayList
 		mBeings = new ArrayList<Thread>();
+		//Loop through to create the threads based on beingCount
 		for(int i = 0;i<beingCount; i++){
 			mBeings.add(new Thread(makeBeingRunnable(i)));
 		}
@@ -167,6 +169,7 @@ public class SimulationManager {
 	 */
 	private static void startThreads(List<Thread> threads) {
 		// @@ TODO - You fill in here.
+		// start all threads
 		for (Thread t : threads){
 			t.start();
 		}
@@ -188,10 +191,12 @@ public class SimulationManager {
 	 */
 	private static boolean incrementGazingCountAndCheck() {
 		// @@ TODO - You fill in here. (Graduate students)
+		// Store updated value for late if check
 		long updated = mGazingThreads.incrementAndGet();
 		if(updated > mPalantirCount){
 			panic();
-			return false;}
+			return false;
+			}
 		return true;
 	}
 
