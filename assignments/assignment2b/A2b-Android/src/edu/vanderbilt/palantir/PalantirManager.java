@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import edu.vanderbilt.semaphore.SimpleSemaphore;
@@ -33,6 +34,11 @@ public class PalantirManager {
      * currently in use.
      */
     protected HashMap<Palantir, Boolean> mPalantiri = null;
+    
+    //Create a local variable called free. 
+    //It's used as a flag to indicate if the palantir is free.
+    private final boolean notInUse = false;
+    private final boolean inUse = true;
 
     /**
      * Create a resource manager for the palantiri passed as a
@@ -42,6 +48,16 @@ public class PalantirManager {
      */
     public PalantirManager(final List<Palantir> palantiri) {
     	// @@ TODO - You fill in here.
+    	//set mMaxPalantiri to length of palantiri list
+    	mMaxPalantiri = palantiri.size();
+    	// create mAvailable using fair semantic
+    	mAvailable = new SimpleSemaphore(mMaxPalantiri,true);
+    	//Entry each palantir from list to Hashmap with false.
+    	//false means palantir is not in use
+    	mPalantiri = new HashMap<Palantir, Boolean>();
+    	for(Palantir p:palantiri){
+    		mPalantiri.put(p, notInUse);
+    	}
     }
 
     /**
@@ -52,7 +68,10 @@ public class PalantirManager {
      */
     public Palantir acquirePalantir() throws InterruptedException {
     	// @@ TODO - You fill in here (replacing return null);
-    	return null;
+    	Palantir acquiredPalantir = null;
+    	mAvailable.acquire();
+    	acquiredPalantir = getNextAvailablePalantir();
+    	return acquiredPalantir;
     }
 
     /**
@@ -61,6 +80,12 @@ public class PalantirManager {
      */
     public void releasePalantir(final Palantir palantir) {
         // @@ TODO - You fill in here.
+        	// grab a semaphore lock
+    		
+    		synchronized(mPalantiri){
+    			mPalantiri.put(palantir, notInUse);
+    		}
+    		mAvailable.release();
     }
 
     /**
@@ -72,7 +97,19 @@ public class PalantirManager {
      */
     protected Palantir getNextAvailablePalantir() {
     	// @@ TODO - You fill in here (replacing return null);
-    	return null;
+    	Palantir nextAvailablePalantir = null;
+    	synchronized(mPalantiri){
+    		if(mPalantiri.containsValue(notInUse)){
+    			for(Entry<Palantir,Boolean> p : mPalantiri.entrySet()){
+					if(p.getValue()==notInUse){
+						nextAvailablePalantir = p.getKey();
+						p.setValue(inUse);
+						break;
+					}
+    			}
+    		}
+    	}
+    	return nextAvailablePalantir;
     }
 
     /**
@@ -80,9 +117,17 @@ public class PalantirManager {
      * method can be called from multiple threads, so make sure that
      * any shared state is protected from race conditions.
      */
+    //?? return boolean or palantir
     protected boolean markAsUnused(final Palantir palantir) {
     	// @@ TODO - You fill in here (replacing return false);
-    	return false;
+    	boolean markedUnused = false;
+    	
+    	synchronized(mPalantiri){
+    		mPalantiri.put(palantir, notInUse);
+    		markedUnused = true;
+    	}
+    	
+    	return markedUnused;
     }
     
     /**

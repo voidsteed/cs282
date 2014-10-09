@@ -42,7 +42,7 @@ public class SimulationManager {
 
 	/**
 	 * The list of Beings (implemented as Java Threads) that are
-	 * attempting to acquire Palantiri for gazing.
+	 * attempting to acquire Palantir for gazing.
 	 */
 	static List<Thread> mBeings;
 
@@ -137,7 +137,8 @@ public class SimulationManager {
 	 */
 	private static PalantirManager initializePalantiri(int palantirCount) {
 		// @@ TODO - You fill in here (replacing return null).
-            return null;
+		mPalantirManager = new PalantirManager(mPalantirManager.generatePalantiri(palantirCount));
+		return mPalantirManager;
 	}
 
 	/**
@@ -152,7 +153,12 @@ public class SimulationManager {
 	 */
 	private static List<Thread> createBeingThreads(int beingCount) {
 		// @@ TODO - You fill in here (replacing return null);
-            return null;
+		// ?? list of threads to runnable?
+		mBeings = new ArrayList<Thread>();
+		for(int i = 0;i<beingCount; i++){
+			mBeings.add(new Thread(makeBeingRunnable(i)));
+		}
+        return mBeings;
 	}
 
 	/**
@@ -161,6 +167,9 @@ public class SimulationManager {
 	 */
 	private static void startThreads(List<Thread> threads) {
 		// @@ TODO - You fill in here.
+		for (Thread t : threads){
+			t.start();
+		}
 	}
 
 	/**
@@ -179,6 +188,10 @@ public class SimulationManager {
 	 */
 	private static boolean incrementGazingCountAndCheck() {
 		// @@ TODO - You fill in here. (Graduate students)
+		long updated = mGazingThreads.incrementAndGet();
+		if(updated > mPalantirCount){
+			panic();
+			return false;}
 		return true;
 	}
 
@@ -189,6 +202,7 @@ public class SimulationManager {
 	 */
 	private static void decrementGazingCount() {
 		// @@ TODO - You fill in here. (Graduate students)
+		mGazingThreads.decrementAndGet();
 	}
 
 	/**
