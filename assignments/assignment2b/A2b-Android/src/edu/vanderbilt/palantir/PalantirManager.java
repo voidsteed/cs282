@@ -78,7 +78,10 @@ public class PalantirManager {
     	//Acquire lock using semaphore
     	mAvailable.acquire();
     	//use a local method to get next available palantir
-    	acquiredPalantir = getNextAvailablePalantir();
+
+        // @@ Just say
+        // return getNextAvailablePalantir();
+    	acquiredPalantir = 
     	return acquiredPalantir;
     }
 
@@ -90,6 +93,7 @@ public class PalantirManager {
         // @@ TODO - You fill in here.
     	//Lock the palantiri list and 
     	//change the palantir's value to notInUse	
+        // @@ This implementation is incorrect - call the markAsUnused() helper method:
     	synchronized(mPalantiri){
     		mPalantiri.put(palantir, notInUse);
     	}
@@ -111,6 +115,8 @@ public class PalantirManager {
     	//lock the palantiri map
     	synchronized(mPalantiri){
     		//check if there is a free palantir
+
+            // @@ You don't need to call containsValue() first:
     		if(mPalantiri.containsValue(notInUse)){
     			//then loop through the palantiri map
     			for(Entry<Palantir,Boolean> p : mPalantiri.entrySet()){

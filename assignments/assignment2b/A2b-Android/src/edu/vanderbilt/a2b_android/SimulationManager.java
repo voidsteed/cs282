@@ -138,6 +138,8 @@ public class SimulationManager {
 	private static PalantirManager initializePalantiri(int palantirCount) {
 		// @@ TODO - You fill in here (replacing return null).
 		//create the mPalantirManager 
+            // @@ Just say
+            // return new PalantirManager(mPalantirManager.generatePalantiri(palantirCount));
 		mPalantirManager = new PalantirManager(mPalantirManager.generatePalantiri(palantirCount));
 		return mPalantirManager;
 	}
