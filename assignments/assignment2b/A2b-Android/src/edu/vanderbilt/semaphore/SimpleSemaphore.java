@@ -17,6 +17,7 @@ public class SimpleSemaphore implements ISemaphore {
      * Define a count of the number of available permits.
      */
     // @@ TODO - you fill in here.
+	// ## changed to not use volatile
 	private int mAvailablePermitsCount = 0;
 	
     /**
@@ -89,7 +90,8 @@ public class SimpleSemaphore implements ISemaphore {
     						if(!removed)
     							release();
     					}
-    					throw new InterruptedException("thread is interrupted.");
+    					// ## change using existing exception
+    					throw e;
     				}
     			}
     	// the non-fair way
