@@ -72,17 +72,14 @@ public class PalantirManager {
      */
     public Palantir acquirePalantir() throws InterruptedException {
     	// @@ TODO - You fill in here (replacing return null);
-    	
-    	//Create a local variable for return
-    	Palantir acquiredPalantir = null;
     	//Acquire lock using semaphore
     	mAvailable.acquire();
     	//use a local method to get next available palantir
 
         // @@ Just say
         // return getNextAvailablePalantir();
-    	acquiredPalantir = 
-    	return acquiredPalantir;
+    	// ##Checked
+    	return getNextAvailablePalantir();
     }
 
     /**
@@ -94,11 +91,15 @@ public class PalantirManager {
     	//Lock the palantiri list and 
     	//change the palantir's value to notInUse	
         // @@ This implementation is incorrect - call the markAsUnused() helper method:
-    	synchronized(mPalantiri){
-    		mPalantiri.put(palantir, notInUse);
-    	}
+    	// ## checked. using markAsUnused() to return the palantir to the pool
+    	
+    	boolean success = markAsUnused(palantir);
     	//release a semaphore to mAvailable
-    	mAvailable.release();
+    	if(success){
+    		mAvailable.release();
+    	}else{
+    		throw new RuntimeException("Unable to mark palantir to unused");
+    	}
     }
 
     /**
@@ -117,20 +118,20 @@ public class PalantirManager {
     		//check if there is a free palantir
 
             // @@ You don't need to call containsValue() first:
-    		if(mPalantiri.containsValue(notInUse)){
-    			//then loop through the palantiri map
-    			for(Entry<Palantir,Boolean> p : mPalantiri.entrySet()){
-    				//Check one entry see if the palantir is in use
-					if(p.getValue()==notInUse){
-						//get this available palantir
-						nextAvailablePalantir = p.getKey();
-						//change this palantir status from noInUse to inUse
-						p.setValue(inUse);
-						//Find the palantir,so don't need to loop again, break it
-						break;
-					}
-    			}
+    		// ## checked
+    		// loop through the palantiri map
+    		for(Entry<Palantir,Boolean> p : mPalantiri.entrySet()){
+    			//Check one entry see if the palantir is in use
+				if(p.getValue()==notInUse){
+					//get this available palantir
+					nextAvailablePalantir = p.getKey();
+					//change this palantir status from noInUse to inUse
+					p.setValue(inUse);
+					//Find the palantir,so don't need to loop again, break it
+					break;
+				}
     		}
+    		
     	}
     	return nextAvailablePalantir;
     }
@@ -145,7 +146,7 @@ public class PalantirManager {
     	// @@ TODO - You fill in here (replacing return false);
     	//set a boolean flag for return
     	boolean markedUnused = false;
-    	//Because multi-thread, so lock palantir map
+    	//Because multi-thread, so lock palantir HashMap
     	synchronized(mPalantiri){
     		// if the palantir is inUse(true)
     		if(mPalantiri.get(palantir)){

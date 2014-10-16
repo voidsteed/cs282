@@ -17,7 +17,7 @@ public class SimpleSemaphore implements ISemaphore {
      * Define a count of the number of available permits.
      */
     // @@ TODO - you fill in here.
-	private volatile int mAvailablePermitsCount = 0;
+	private int mAvailablePermitsCount = 0;
 	
     /**
      * Keep track of whether we need a fair or non-fair Semaphore.
