@@ -1,7 +1,7 @@
 package edu.vanderbilt.palantir;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,13 +33,17 @@ public class PalantirManager {
      * boolean, which indicates whether or not the palantir is
      * currently in use.
      */
-    protected HashMap<Palantir, Boolean> mPalantiri = null;
+
+//    protected HashMap<Palantir, Boolean> mPalantiri = null;
     
     /**
      * Create a local variable called free. 
      * It's used as a flag to indicate if the palantir is free.*/
     private final boolean notInUse = false;
     private final boolean inUse = true;
+
+    protected ConcurrentHashMap<Palantir, Boolean> mPalantiri = null;
+
 
     /**
      * Create a resource manager for the palantiri passed as a
@@ -58,7 +62,7 @@ public class PalantirManager {
     	
     	//Create a hashmap with Panlantir and boolean
     	//Loop through Hashmap and map panlantiri with notInUse(false) in default.
-    	mPalantiri = new HashMap<Palantir, Boolean>();
+    	mPalantiri = new ConcurrentHashMap<Palantir, Boolean>();
     	for(Palantir p:palantiri){
     		mPalantiri.put(p, notInUse);
     	}
