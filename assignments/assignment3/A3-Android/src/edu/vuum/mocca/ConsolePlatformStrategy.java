@@ -32,24 +32,33 @@ public class ConsolePlatformStrategy extends PlatformStrategy
     public void begin()
     {
         // TODO - You fill in here.
+    	mLatch = new CountDownLatch(2);
     }
 
     /** Print the outputString to the display. */
     public void print(String outputString)
     {
         // TODO - You fill in here.
+    	System.out.println(outputString);
     }
 
     /** Indicate that a game thread has finished running. */
     public void done()
     {
         // TODO - You fill in here.
+    	mLatch.countDown();
     }
     
     /** Barrier that waits for all the game threads to finish. */
     public void awaitDone()
     {
         // TODO - You fill in here.
+    	try {
+			mLatch.await();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     /**

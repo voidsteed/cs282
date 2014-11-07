@@ -3,7 +3,9 @@ package edu.vuum.mocca;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
 
+import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * @class AndroidPlatformStrategy
@@ -33,6 +35,7 @@ public class AndroidPlatformStrategy extends PlatformStrategy {
     public void begin() {
         /** (Re)initialize the CountDownLatch. */
         // TODO - You fill in here.
+    	mLatch = new CountDownLatch(2);
     }
 
     /** 
@@ -41,16 +44,24 @@ public class AndroidPlatformStrategy extends PlatformStrategy {
      */
     public void print(final String outputString) {
         // TODO - You fill in here.
+    	mOuterClass.get().print(outputString);
     }
 
     /** Indicate that a game thread has finished running. */
     public void done() {
         // TODO - You fill in here.
+    	mLatch.countDown();
     }
 
     /** Barrier that waits for all the game threads to finish. */
     public void awaitDone() {
         // TODO - You fill in here.
+    	try {
+			mLatch.await();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     /**

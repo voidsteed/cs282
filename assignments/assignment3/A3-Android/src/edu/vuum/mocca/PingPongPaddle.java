@@ -13,18 +13,25 @@ import java.util.concurrent.locks.ReentrantLock;
 public class PingPongPaddle {
     /** Condition used to wait for the Pingpong ball. */
     // TODO - You fill in here.
+	Condition mWait = null;
+	//Condition mNotWait = null;
 
     /** Lock used along with the Condition. */
     // TODO - You fill in here.
+	Lock mLock = null;
 
     /** Do we have the ball or not. */
     // TODO - You fill in here.
-
+	boolean mHaveBall;
+	
     /**
      * Constructor initializes data members.
      */
     public PingPongPaddle(boolean haveBall) {
         // TODO - You fill in here.
+    	mLock = new ReentrantLock();
+    	mWait = mLock.newCondition();
+    	mHaveBall = haveBall;
     }
 
     /**
@@ -32,6 +39,10 @@ public class PingPongPaddle {
      */
     public void returnBall() {
         // TODO - You fill in here.
+    	mLock.lock();
+    	mWait.signal();
+    	mHaveBall = true;
+    	mLock.unlock();
     }
 
     /**
@@ -39,6 +50,17 @@ public class PingPongPaddle {
      */
     public void awaitBall() {
         // TODO - You fill in here.
+    	mLock.lock();
+    	try {
+    		while(!mHaveBall){
+    			mWait.await();
+    			}
+    		mHaveBall = false;
+    	}catch (InterruptedException e) {
+				e.printStackTrace();
+		} finally {
+			mLock.unlock();
+		}
     }
 }
 
