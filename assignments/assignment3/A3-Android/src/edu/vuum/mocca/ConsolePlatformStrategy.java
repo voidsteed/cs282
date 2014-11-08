@@ -32,6 +32,7 @@ public class ConsolePlatformStrategy extends PlatformStrategy
     public void begin()
     {
         // TODO - You fill in here.
+        // @@ Please don't use magic numbers, use symbolic constants instead:
     	mLatch = new CountDownLatch(2);
     }
 

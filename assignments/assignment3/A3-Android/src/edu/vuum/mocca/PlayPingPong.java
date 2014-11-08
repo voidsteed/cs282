@@ -324,6 +324,8 @@ public class PlayPingPong implements Runnable {
 		void acquire() {
 			// TODO - You fill in here.
 			try {
+                // @@ Yikes, you're missing something here!
+
 				mOtherQueue.take();
 			} catch (InterruptedException e) {
 				e.printStackTrace();

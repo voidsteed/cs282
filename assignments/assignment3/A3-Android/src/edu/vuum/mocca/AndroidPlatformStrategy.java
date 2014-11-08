@@ -35,6 +35,8 @@ public class AndroidPlatformStrategy extends PlatformStrategy {
     public void begin() {
         /** (Re)initialize the CountDownLatch. */
         // TODO - You fill in here.
+        // @@ Please don't use magic numbers, use symbolic constants instead:
+
     	mLatch = new CountDownLatch(2);
     }
 
@@ -50,6 +52,8 @@ public class AndroidPlatformStrategy extends PlatformStrategy {
     /** Indicate that a game thread has finished running. */
     public void done() {
         // TODO - You fill in here.
+// @@ Please use runOnUiThread() so the countDown() method occurs in the UI Thread.
+
     	mLatch.countDown();
     }
 
