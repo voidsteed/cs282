@@ -325,8 +325,8 @@ public class PlayPingPong implements Runnable {
 			// TODO - You fill in here.
 			try {
                 // @@ Yikes, you're missing something here!
-
-				mOtherQueue.take();
+				// ## checked!
+				mPingPongBall = mOtherQueue.take();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -469,10 +469,7 @@ public class PlayPingPong implements Runnable {
 			
 			pingPongThreads[PING_THREAD] = new PingPongThreadQueue("ping", pingQ, pongQ, pingPongBall);
 			pingPongThreads[PONG_THREAD] = new PingPongThreadQueue("pong", pongQ, pingQ, pingPongBall);
-			/*pingPongThreads[PING_THREAD]
-					.setOtherThreadId(pingPongThreads[PONG_THREAD].getId());
-			pingPongThreads[PONG_THREAD]
-					.setOtherThreadId(pingPongThreads[PING_THREAD].getId());*/
+			
 		}
 		// Use a pair of PingPongPaddles
 		else if (schedMechanism.equals("PADDLE")) {
@@ -482,10 +479,7 @@ public class PlayPingPong implements Runnable {
 			
 			pingPongThreads[PING_THREAD] = new PingPongThreadBall("ping", myPaddle, otherPaddle);
 			pingPongThreads[PONG_THREAD] = new PingPongThreadBall("pong", otherPaddle, myPaddle);
-			/*pingPongThreads[PING_THREAD]
-					.setOtherThreadId(pingPongThreads[PONG_THREAD].getId());
-			pingPongThreads[PONG_THREAD]
-					.setOtherThreadId(pingPongThreads[PING_THREAD].getId());*/
+			
 		}
 	}
 

@@ -21,6 +21,9 @@ public class ConsolePlatformStrategy extends PlatformStrategy
 
     /** Contains information for outputting to console window. */
     private final PrintStream mOutput;
+    
+    /** Defined a symbolic constants for latch count. */
+    private final int LATCH_COUNT = 2;
 
     /** Ctor. */
     public ConsolePlatformStrategy(Object output) 
@@ -33,7 +36,8 @@ public class ConsolePlatformStrategy extends PlatformStrategy
     {
         // TODO - You fill in here.
         // @@ Please don't use magic numbers, use symbolic constants instead:
-    	mLatch = new CountDownLatch(2);
+    	// ## checked!
+    	mLatch = new CountDownLatch(LATCH_COUNT);
     }
 
     /** Print the outputString to the display. */
