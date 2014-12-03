@@ -42,6 +42,7 @@ public class PingPongPaddle {
     	
     	mLock.lock();
         // @@ Please put all this in a try/finally block.
+    	// ## checked!
     	try{
     		mWait.signal();
     		mHaveBall = true;
@@ -61,6 +62,7 @@ public class PingPongPaddle {
     	try {
     		while(!mHaveBall){
                     // @@ Use awaitUninterruptibly() here and zap the exception stuff.
+    			//## checked!
     			mWait.awaitUninterruptibly();
     			}
     		mHaveBall = false;

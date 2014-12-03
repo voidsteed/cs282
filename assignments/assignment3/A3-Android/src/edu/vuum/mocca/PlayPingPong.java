@@ -380,7 +380,7 @@ public class PlayPingPong implements Runnable {
 			// Block until we receive the pingpong ball.
 			// TODO - You fill in here.
 			mMyPaddle.awaitBall();
-			//mOtherPaddle.returnBall();
+			
 			
 		}
 

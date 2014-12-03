@@ -238,7 +238,7 @@ public class BarrierManagerStrategy implements BarrierManager {
         /**
          * A reentrant lock to restrict access to the barriers.
          */
-        ReentrantLock mLock = null; 
+        ReentrantLock mLock = new ReentrantLock(); 
 
         /**
          * Adds a barrier to this manager concurrently using reentrant locks to
@@ -246,7 +246,13 @@ public class BarrierManagerStrategy implements BarrierManager {
          */
         @Override
             public void addBarrier(BouncyBarrier b) {
-            // TODO - You fill in here
+        	// TODO - You fill in here
+        		mLock.lock();
+        		try{
+        			super.addBarrier(b);
+        		}finally{
+        			mLock.unlock();
+        		}
         }
 
         /**
@@ -257,6 +263,12 @@ public class BarrierManagerStrategy implements BarrierManager {
         @Override
             public void bounceAndRemoveIfNecessary(BouncyBalloon b) {
             // TODO - You fill in here
+        	mLock.lock();
+        	try{
+        		super.bounceAndRemoveIfNecessary(b);
+        	}finally{
+        		mLock.unlock();
+        	}
         }
 
         /**
@@ -266,6 +278,13 @@ public class BarrierManagerStrategy implements BarrierManager {
         @Override
             public void clear() {
             // TODO - You fill in here
+    		mLock.lock();
+    		try{
+    			super.clear();
+    		}finally{
+    			mLock.unlock();
+    		
+    		}
         }
     }
 
@@ -293,6 +312,9 @@ public class BarrierManagerStrategy implements BarrierManager {
          */
         public RWBarrierManager() {
             // TODO - You fill in here
+        	mLock = new ReentrantReadWriteLock();
+        	mReadLock = mLock.readLock();
+        	mWriteLock = mLock.writeLock();
         }
 
         /**
@@ -302,7 +324,14 @@ public class BarrierManagerStrategy implements BarrierManager {
         @Override
             public void addBarrier(BouncyBarrier b) {
             // TODO - You fill in here
-        }
+        		mWriteLock.lock();
+        		try{
+        			super.addBarrier(b);
+        		}finally{
+        			mWriteLock.unlock();
+        		}
+        	}
+        
 
         /**
          * Checks if a balloon needs to bounce off a barrier and bounces it. If
@@ -313,7 +342,23 @@ public class BarrierManagerStrategy implements BarrierManager {
             public void bounceAndRemoveIfNecessary(BouncyBalloon b) {
             // TODO - You fill in here. If the balloon has more than two bounces
             // left, use a read lock. Otherwise, use a write lock.
+        	if(b.getBouncesLeft() > 2){
+        		mReadLock.lock();
+        		try{
+        			super.bounceAndRemoveIfNecessary(b);
+        		}finally{
+        			mReadLock.unlock();
+        		}
+        	}else{
+        		mWriteLock.lock();
+        		try{
+        			super.bounceAndRemoveIfNecessary(b);
+        		}finally{
+        			mWriteLock.unlock();
+        		}
+        	}
         }
+        
 
         /**
          * Removes all barriers from this manager. Coordinates access using a
@@ -322,6 +367,12 @@ public class BarrierManagerStrategy implements BarrierManager {
         @Override
             public void clear() {
             // TODO - You fill in here
+        	mWriteLock.lock();
+        	try{
+        		super.clear();
+        	}finally{
+        		mWriteLock.unlock();
+        	}
         }
     }
 

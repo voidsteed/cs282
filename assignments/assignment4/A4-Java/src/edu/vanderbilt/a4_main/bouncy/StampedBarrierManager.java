@@ -24,7 +24,7 @@ class StampedBarrierManager extends BarrierManagerBase {
      */
     public StampedBarrierManager() {
         // TODO - You fill in here.
-        mLock = null;
+        mLock = new StampedLock();
     }
 
     /**
@@ -33,6 +33,12 @@ class StampedBarrierManager extends BarrierManagerBase {
     @Override
     public void addBarrier(BouncyBarrier b) {
         // TODO - You fill in here.
+    	long stamp = mLock.writeLock();
+    	try{
+    		super.addBarrier(b);
+    	}finally{
+    		mLock.unlockWrite(stamp);
+    	}
     }
 
     /**
@@ -47,6 +53,7 @@ class StampedBarrierManager extends BarrierManagerBase {
         // TODO - You fill in here to fix this implementation. Some comments are left to guide you. 
 		
         // Get an optimstic reading lock
+        long stamp = mLock.tryOptimisticRead();
 
         // Iterate over all the barriers.
         boolean bouncedX = false;
@@ -77,8 +84,15 @@ class StampedBarrierManager extends BarrierManagerBase {
         }
 
         // Return false if the lock fails to validate
-
+        if(!mLock.validate(stamp)){
+        	return false;
+        }
         // Otherwise bounce the balloons and return true.
+        else{
+        	if(bouncedX) b.bounceX();
+        	if(bouncedY) b.bounceY();
+        	return true;
+        }
     }
 
     /**
@@ -94,20 +108,33 @@ class StampedBarrierManager extends BarrierManagerBase {
         // TODO - You fill in here. Some comments are left to guide you.
 		
         // If that doesn't work, grab a read lock.
-
+        long stamp = mLock.readLock();
+        
         // Bounce the balloon and figure out if we need to remove a barrier.
-
+        BouncyBarrier toRemove = bounceIfNecessary(b);
+        
         // If we have to remove a barrier.
         // Try upgrading to a write lock.
-
-        // If we didn't acquire the write lock on the first try,
-        // release the read lock and explicity acquire the write lock.
-
-        // Remove the barrier.
-        // Release the lock
-		
-        // Else just release the read lock
-
+        if (toRemove != null){
+        	long ws = mLock.tryConvertToWriteLock(stamp);   	
+ 
+        	// If we didn't acquire the write lock on the first try,
+            // release the read lock and explicity acquire the write lock.
+        	if(ws == 0L){
+        		mLock.unlockRead(stamp);
+        		stamp = mLock.writeLock();
+        	}
+        	else{
+        		stamp = ws;	
+        	}
+        	// Remove the barrier.
+            // Release the lock
+			super.removeBarrier(toRemove);
+			mLock.unlock(stamp);
+		// Else just release the read lock	
+        }else{
+    		mLock.unlockRead(stamp);
+    	}
     }
 
     /**
@@ -117,6 +144,12 @@ class StampedBarrierManager extends BarrierManagerBase {
     @Override
     public void clear() {
         // TODO - You fill in here.
+    	long stamp = mLock.writeLock();
+    	try{
+    		super.clear();
+    	}finally{
+    		mLock.unlockWrite(stamp);
+    	}
     }
 
 }
