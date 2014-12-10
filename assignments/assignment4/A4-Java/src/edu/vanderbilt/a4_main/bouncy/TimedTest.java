@@ -20,7 +20,7 @@ import edu.vanderbilt.a4_android.bouncy.Point;
  */
 public class TimedTest {
     public static void main(String args[]) {
-        try {/*
+        try {
             System.out.print("Running Synchronized Test: ");
             System.out.println
                 (doTest(new BarrierManagerStrategy(Strategy.Synchronized)) + "ms");
@@ -37,7 +37,7 @@ public class TimedTest {
             System.out.println
             (doTest(new BarrierManagerStrategy(Strategy.CopyOnWrite)) + "ms");
         
-*/
+
             System.out.print("Running StampedLock Test: ");
             System.out.println
                 (doTest(new StampedBarrierManager()) + "ms");

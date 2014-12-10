@@ -342,25 +342,34 @@ public class BarrierManagerStrategy implements BarrierManager {
             public void bounceAndRemoveIfNecessary(BouncyBalloon b) {
             // TODO - You fill in here. If the balloon has more than two bounces
             // left, use a read lock. Otherwise, use a write lock.
+        	
+        	// create the local lock variable
+        	Lock lock = null;
+        	
         	if(b.getBouncesLeft() > 2){
 
                 // @@ Please use a local variable "lock" of type Lock
                 // and store either mReadLock or mWriteLock into that
                 // "lock", which will cleanup the code by removing the
                 // special cases.
-
-        		mReadLock.lock();
+        		//##checked!
+        		
+        		//Use read lock
+        		lock = mReadLock;
+        		lock.lock();
         		try{
         			super.bounceAndRemoveIfNecessary(b);
         		}finally{
-        			mReadLock.unlock();
+        			lock.unlock();
         		}
         	}else{
-        		mWriteLock.lock();
+        		// use write lock
+        		lock = mWriteLock;
+        		lock.lock();
         		try{
         			super.bounceAndRemoveIfNecessary(b);
         		}finally{
-        			mWriteLock.unlock();
+        			lock.unlock();
         		}
         	}
         }
